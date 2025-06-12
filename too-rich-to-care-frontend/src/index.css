@@ -33,7 +33,31 @@ h1, h2, h3 {
   @apply px-4 py-2 rounded-lg font-semibold text-black bg-accent-yellow hover:bg-yellow-400;
 }
 
+
+.game-layout {
+  @apply min-h-screen relative overflow-hidden bg-gradient-to-br from-background-dark via-[#15192b] to-background-deeper text-white font-sans;
+}
+
+.bg-glow {
+  @apply absolute rounded-full opacity-30 blur-3xl pointer-events-none;
+}
+
+.glassy-card {
+  @apply bg-white/5 backdrop-blur-lg border border-white/10 rounded-3xl shadow-xl;
+}
+
 .billionaire-card {
-  @apply bg-[#1D2233] hover:bg-[#242B3F] transition-transform duration-300 transform hover:scale-105
-    w-56 sm:w-60 p-4 rounded-3xl shadow-xl cursor-pointer flex flex-col text-center gap-3 border border-[#2A2F40];
+  @apply relative overflow-hidden bg-[#1D2233] hover:bg-[#242B3F] transition-transform duration-300 transform hover:scale-105 w-56 sm:w-60 p-4 rounded-3xl shadow-2xl cursor-pointer flex flex-col text-center gap-3 border border-[#2A2F40];
+}
+.billionaire-card::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: 1.5rem;
+  background: radial-gradient(circle at 30% 30%, rgba(250,204,21,0.25), transparent 70%);
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+.billionaire-card:hover::before {
+  opacity: 1;
 }

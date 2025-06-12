@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
+import GameLayout from '../components/GameLayout';
 
 function fileToBase64(file: File): Promise<string> {
   return new Promise((resolve, reject) => {
@@ -117,7 +118,8 @@ export default function PaymentSuccess() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-[#0D0F1A] to-[#131623] text-white flex flex-col items-center justify-center p-4 font-sans">
+    <GameLayout>
+    <div className="flex flex-col items-center justify-center p-4 relative z-10">
       <h1 className="text-2xl font-bold mb-4">Pago confirmado ✅</h1>
       <p className="mb-4 text-center max-w-md">
         Gracias por tu compra. Para finalizar sube una selfie y un correo donde enviaremos tu video personalizado.
@@ -191,5 +193,6 @@ export default function PaymentSuccess() {
         Volver al inicio
       </button>
     </div>
+    </GameLayout>
   );
 }

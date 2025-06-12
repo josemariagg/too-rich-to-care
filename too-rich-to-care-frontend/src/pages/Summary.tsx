@@ -1,6 +1,7 @@
 import { useNavigate } from 'react-router-dom';
 import { useGame } from '../context/GameContext';
 import { useEffect, useState } from 'react';
+import GameLayout from '../components/GameLayout';
 
 export default function Summary() {
   const navigate = useNavigate();
@@ -47,7 +48,8 @@ export default function Summary() {
   const remaining = billionaire.netWorth - totalSpent;
 
   return (
-    <div className="p-4">
+    <GameLayout>
+    <div className="p-4 relative z-10">
       <h1 className="text-2xl font-bold mb-4">Resumen de tus acciones</h1>
       <p className="mb-2 font-medium">Billonario: {billionaire.name}</p>
       <p className="mb-2">Fortuna inicial: $ {billionaire.netWorth.toLocaleString()}</p>
@@ -85,5 +87,6 @@ export default function Summary() {
         </button>
       </div>
     </div>
+    </GameLayout>
   );
 }
