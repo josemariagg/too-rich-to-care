@@ -1,0 +1,81 @@
+README
+This README explains how to run the scripts to prepare object folders, upload files to Cloudinary, and register the information in the PostgreSQL database.
+
+Prerequisites
+Node.js >= 16 installed
+
+Environment variables configured in .env with:
+
+CLOUDINARY_CLOUD_NAME
+
+CLOUDINARY_API_KEY
+
+CLOUDINARY_API_SECRET
+
+DATABASE_URL (PostgreSQL connection)
+
+NODE_ENV (optional, for SSL in DB)
+
+Folder assets/objects with subfolders per object (for upload and registration)
+
+PostgreSQL database with the items table created (see structure below)
+
+PostgreSQL items table structure
+sql
+Copiar
+CREATE TABLE items (
+  id TEXT PRIMARY KEY,
+  code TEXT,
+  name TEXT,
+  category TEXT,
+  price INTEGER,
+  video_url TEXT,
+  thumbnail_url TEXT,
+  object_url TEXT
+);
+Available scripts
+1. Create base folders for objects
+Creates the folder structure and base files required for each object.
+
+bash
+Copiar
+node scripts/createObjectFolders.js
+Edit the objectIds array inside the script to add or modify the objects you want to create folders for.
+
+2. Upload files to Cloudinary (without database)
+Uploads video.mp4, thumbnail.jpg, and object.png of an object to Cloudinary and generates a final.json file with the resulting URLs.
+
+bash
+Copiar
+node scripts/registerObject.js <OBJECT_CODE>
+Example:
+
+bash
+Copiar
+node scripts/registerObject.js JY001_Falconaire10X
+3. Upload files to Cloudinary and register in database
+Uploads the files and additionally saves or updates the record in the PostgreSQL items table.
+
+bash
+Copiar
+node scripts/registerObjectWithDB.js <OBJECT_CODE>
+Example:
+
+bash
+Copiar
+node scripts/registerObjectWithDB.js JY001_Falconaire10X
+Important notes
+Before running the scripts, make sure your .env file is properly configured and loaded.
+
+The items table must exist in your database with the proper permissions.
+
+The scripts expect the files to upload to be located in assets/objects/<OBJECT_CODE>/.
+
+Expected file names are: video.mp4, thumbnail.jpg, object.png, and meta.json.
+
+The id field should exist inside meta.json, or the script will use the object code as the ID.
+
+The script registerObjectWithDB.js performs an UPSERT: it inserts or updates the record if it already exists.
+
+To avoid errors in production with SSL and PostgreSQL, set the NODE_ENV variable to 'production'.
+

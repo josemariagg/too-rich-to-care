@@ -1,0 +1,8 @@
+CREATE TABLE IF NOT EXISTS payments (
+  id SERIAL PRIMARY KEY,
+  payment_intent_id TEXT NOT NULL UNIQUE,
+  user_email TEXT,
+  amount_total INTEGER NOT NULL,
+  status TEXT NOT NULL,
+  created_at TIMESTAMP DEFAULT NOW()
+);

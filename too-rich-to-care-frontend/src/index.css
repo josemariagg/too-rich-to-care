@@ -1,0 +1,39 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+body {
+  @apply bg-background-dark text-white font-sans leading-relaxed tracking-tight;
+}
+
+::-webkit-scrollbar {
+  width: 8px;
+}
+::-webkit-scrollbar-thumb {
+  background-color: #2c2f40;
+  border-radius: 4px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+a, button, div {
+  transition: all 0.2s ease-in-out;
+}
+
+a {
+  @apply text-accent-yellow hover:underline;
+}
+
+h1, h2, h3 {
+  @apply font-bold text-yellow-300;
+}
+
+.btn {
+  @apply px-4 py-2 rounded-lg font-semibold text-black bg-accent-yellow hover:bg-yellow-400;
+}
+
+.billionaire-card {
+  @apply bg-[#1D2233] hover:bg-[#242B3F] transition-transform duration-300 transform hover:scale-105
+    w-56 sm:w-60 p-4 rounded-3xl shadow-xl cursor-pointer flex flex-col text-center gap-3 border border-[#2A2F40];
+}
