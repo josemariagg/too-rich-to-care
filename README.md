@@ -34,3 +34,11 @@ Values are defined in `too-rich-to-care-backend/.env.example`:
 
 - `VITE_API_URL` – base URL of the backend API.
 
+## Running Tests
+
+From the `too-rich-to-care-frontend` directory run:
+
+```bash
+npm test
+```
+
