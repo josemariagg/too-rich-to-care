@@ -21,12 +21,22 @@ export default function PaymentSuccess() {
   const [downloadUrl, setDownloadUrl] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [selfie, setSelfie] = useState<File | null>(null);
+  const [preview, setPreview] = useState<string | null>(null);
   const [cameraActive, setCameraActive] = useState(false);
   const [stream, setStream] = useState<MediaStream | null>(null);
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const [email, setEmail] = useState('');
   const [generating, setGenerating] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (selfie) {
+      const objectUrl = URL.createObjectURL(selfie);
+      setPreview(objectUrl);
+      return () => URL.revokeObjectURL(objectUrl);
+    }
+    setPreview(null);
+  }, [selfie]);
 
   useEffect(() => {
     const params = new URLSearchParams(location.search);
@@ -120,10 +130,11 @@ export default function PaymentSuccess() {
   return (
     <GameLayout>
     <div className="flex flex-col items-center justify-center p-4 relative z-10">
-      <h1 className="text-2xl font-bold mb-4">Pago confirmado ✅</h1>
-      <p className="mb-4 text-center max-w-md">
-        Gracias por tu compra. Para finalizar sube una selfie y un correo donde enviaremos tu video personalizado.
-      </p>
+      <div className="glassy-card p-6 w-full max-w-md flex flex-col items-center">
+        <h1 className="text-2xl font-bold mb-4">Pago confirmado ✅</h1>
+        <p className="mb-4 text-center">
+          Gracias por tu compra. Para finalizar sube una selfie y un correo donde enviaremos tu video personalizado.
+        </p>
 
       <div className="mb-4 flex flex-col items-center">
         {cameraActive ? (
@@ -144,6 +155,21 @@ export default function PaymentSuccess() {
           </>
         ) : (
           <>
+            {preview && (
+              <>
+                <img
+                  src={preview}
+                  alt="Selfie preview"
+                  className="mb-2 w-32 h-32 object-cover rounded-full"
+                />
+                <button
+                  onClick={() => setSelfie(null)}
+                  className="mb-2 px-3 py-1 bg-gray-500 text-white rounded text-sm hover:bg-gray-400"
+                >
+                  Cambiar foto
+                </button>
+              </>
+            )}
             <input
               type="file"
               accept="image/*"
@@ -192,6 +218,7 @@ export default function PaymentSuccess() {
       >
         Volver al inicio
       </button>
+    </div>
     </div>
     </GameLayout>
   );
