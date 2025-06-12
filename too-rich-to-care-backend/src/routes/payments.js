@@ -84,6 +84,46 @@ router.post(
           ]
         );
         console.log('✅ Payment inserted successfully');
+
+        // Gather information to send to the video generation service
+        const cartRes = await pool.query(
+          'SELECT name, user_id FROM carts WHERE id = $1',
+          [cart_id]
+        );
+        const name = cartRes.rows[0]?.name || null;
+        const realUserId = cartRes.rows[0]?.user_id || user_id;
+
+        const itemsRes = await pool.query(
+          'SELECT item_id, item_name, category, quantity, item_order FROM cart_items WHERE cart_id = $1 ORDER BY item_order',
+          [cart_id]
+        );
+
+        const choiceRes = await pool.query(
+          'SELECT billionaire FROM choices WHERE user_id = $1 ORDER BY created_at DESC LIMIT 1',
+          [realUserId]
+        );
+
+        const payload = {
+          name,
+          userId: realUserId,
+          items: itemsRes.rows,
+          billionaire: choiceRes.rows[0]?.billionaire || null,
+        };
+
+        if (process.env.VIDEO_POD_URL) {
+          try {
+            await fetch(process.env.VIDEO_POD_URL, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify(payload),
+            });
+            console.log('✅ Sent data to video pod');
+          } catch (err) {
+            console.error('❌ Error sending data to video pod:', err);
+          }
+        } else {
+          console.log('ℹ️ VIDEO_POD_URL not configured, skipping video pod notification');
+        }
       } catch (err) {
         console.error('❌ Error inserting payment:', err);
       }
