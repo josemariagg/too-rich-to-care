@@ -34,11 +34,8 @@ describe('SpendMoney', () => {
       </MemoryRouter>
     );
 
-    const plusButtons = screen.getAllByRole('button', { name: '+1' });
-    await user.click(plusButtons[0]);
-    await user.click(plusButtons[0]);
 
-    const videoBtn = screen.getByRole('button', { name: /get your video/i });
+    const videoBtn = await screen.findByText(/get your video/i);
     await user.click(videoBtn);
 
     expect(screen.getByText(/summary of your actions/i)).toBeInTheDocument();

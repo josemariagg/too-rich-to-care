@@ -110,7 +110,7 @@ export default function SpendMoney() {
       cost: item.price * quantity,
     }));
     setSpendingActions(actions);
-    navigate('/summary');
+    navigate('/summary', { state: { shoppingBag } });
   };
 
   const filteredItems = items.filter((i) => i.category === activeCategory);

@@ -1,11 +1,14 @@
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { useGame } from '../context/GameContext';
 import { useEffect, useState } from 'react';
 import GameLayout from '../components/GameLayout';
+import type { ShoppingBagItem } from './CheckoutReview';
 
 export default function Summary() {
   const navigate = useNavigate();
+  const location = useLocation();
   const { billionaire, spendingActions, totalSpent, resetGame, userId } = useGame();
+  const shoppingBag: ShoppingBagItem[] = location.state?.shoppingBag || [];
   const [submitted, setSubmitted] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -24,6 +27,7 @@ export default function Summary() {
 
       setSubmitted(true);
       console.log('✅ Data sent successfully');
+      navigate('/checkout', { state: { shoppingBag } });
     } catch (err) {
       console.error('❌ Error enviando al backend:', err);
       setError('There was an error saving your data.');
@@ -72,7 +76,7 @@ export default function Summary() {
             onClick={handleSubmit}
             className="px-4 py-2 bg-green-600 text-white rounded"
           >
-            Finish
+            Pay for your video
           </button>
         )}
         <button
