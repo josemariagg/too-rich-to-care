@@ -19,6 +19,7 @@ type GameContextType = {
   setBillionaire: (b: Billionaire) => void;
   spendingActions: SpendingAction[];
   addSpendingAction: (action: SpendingAction) => void;
+  setSpendingActions: (actions: SpendingAction[]) => void;
   resetGame: () => void;
   totalSpent: number;
   userId: string;
@@ -55,6 +56,7 @@ export const GameProvider = ({ children }: { children: ReactNode }) => {
         setBillionaire,
         spendingActions,
         addSpendingAction,
+        setSpendingActions,
         resetGame,
         totalSpent,
         userId,
