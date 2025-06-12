@@ -4,6 +4,7 @@ import dotenv from 'dotenv';
 import choicesRoutes from './routes/choices.js';
 import paymentsRouter from './routes/payments.js'; // ✅ Stripe
 import cartRoutes from './routes/cart.js';
+import videosRoutes from './routes/videos.js';
 
 
 dotenv.config();
@@ -24,6 +25,7 @@ app.use(express.json());
 // Rutas sin conflicto
 app.use('/choices', choicesRoutes);
 app.use('/api/cart', cartRoutes);
+app.use('/api/videos', videosRoutes);
 
 
 // Aquí dividimos el router de pagos en dos rutas:
