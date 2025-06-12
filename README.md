@@ -34,3 +34,17 @@ Values are defined in `too-rich-to-care-backend/.env.example`:
 
 - `VITE_API_URL` – base URL of the backend API.
 
+## Deployment
+
+When deploying the frontend to a static host, ensure that any request is rewritten
+to `/index.html` so the React router can handle the route. The repository includes
+an example configuration in `too-rich-to-care-frontend/vercel.json`:
+
+```json
+{
+  "rewrites": [
+    { "source": "/(.*)", "destination": "/index.html" }
+  ]
+}
+```
+
