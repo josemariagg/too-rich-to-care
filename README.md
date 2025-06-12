@@ -14,7 +14,7 @@ The backend exposes several routes used by the frontend:
 | `POST /api/payments/create-checkout-session` | Creates a Stripe Checkout session and returns a redirect URL. Body expects `{ userId, cartId }`. |
 | `POST /api/payments/webhook` | Stripe webhook endpoint to confirm completed payments. When a payment succeeds and `VIDEO_POD_URL` is configured, it forwards the cart and user info to that service. |
 
-The frontend points to these routes using the `VITE_API_URL` environment variable. `SelectBillionaire` posts to `/choices`, while `CheckoutReview` sends the cart and player name to `/api/cart/save-cart` and then creates the checkout session via `/api/payments/create-checkout-session`.
+The frontend points to these routes using the `VITE_API_URL` environment variable. After selecting items, the Summary page saves the cart and player name to `/api/cart/save-cart` and then creates the checkout session via `/api/payments/create-checkout-session`.
 
 ## Environment Variables
 

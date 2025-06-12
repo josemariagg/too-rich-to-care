@@ -1,20 +1,40 @@
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useGame } from '../context/GameContext';
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
+import { v4 as uuidv4 } from 'uuid';
 import GameLayout from '../components/GameLayout';
-import type { ShoppingBagItem } from './CheckoutReview';
+
+type LuxuryItem = {
+  name: string;
+  price: number;
+  description?: string;
+  icon?: string;
+  category: string;
+};
+
+type ShoppingBagItem = {
+  item: LuxuryItem;
+  quantity: number;
+};
 
 export default function Summary() {
   const navigate = useNavigate();
   const location = useLocation();
   const { billionaire, spendingActions, totalSpent, resetGame, userId } = useGame();
   const shoppingBag: ShoppingBagItem[] = location.state?.shoppingBag || [];
-  const [submitted, setSubmitted] = useState(false);
+  const [name, setName] = useState('');
+  const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   const handleSubmit = async () => {
+    if (shoppingBag.length === 0) {
+      navigate('/spend');
+      return;
+    }
+
+    setLoading(true);
     try {
-      const response = await fetch(import.meta.env.VITE_API_URL + '/choices', {
+      await fetch(import.meta.env.VITE_API_URL + '/choices', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -23,14 +43,41 @@ export default function Summary() {
         }),
       });
 
-      if (!response.ok) throw new Error('Failed to send to backend');
+      const cartId = uuidv4();
+      const items = shoppingBag.map((entry, index) => ({
+        item_id: entry.item.name,
+        item_name: entry.item.name,
+        category: entry.item.category,
+        quantity: entry.quantity,
+        item_order: index,
+      }));
 
-      setSubmitted(true);
-      console.log('✅ Data sent successfully');
-      navigate('/checkout', { state: { shoppingBag } });
+      await fetch(`${import.meta.env.VITE_API_URL}/api/cart/save-cart`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ cartId, userId, name, items }),
+      });
+
+      const res = await fetch(
+        `${import.meta.env.VITE_API_URL}/api/payments/create-checkout-session`,
+        {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ userId, cartId }),
+        }
+      );
+
+      const data = await res.json();
+      if (data.url) {
+        window.location.href = data.url;
+      } else {
+        setError('No se pudo iniciar el pago.');
+      }
     } catch (err) {
-      console.error('❌ Error enviando al backend:', err);
-      setError('There was an error saving your data.');
+      console.error('Error en checkout:', err);
+      setError('Hubo un error al procesar el pago.');
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -67,18 +114,29 @@ export default function Summary() {
         ))}
       </ul>
 
+      <div className="mb-4">
+        <label className="block mb-2">Tu nombre</label>
+        <input
+          className="w-full p-2 rounded text-black"
+          value={name}
+          onChange={(e) => setName(e.target.value)}
+          placeholder="Ingresa tu nombre"
+        />
+      </div>
+      <p className="mb-6 text-gray-300">
+        Al continuar serás redirigido a nuestra pasarela de pago segura para completar tu compra.
+      </p>
+
       {error && <p className="text-red-600 mb-4">{error}</p>}
-      {submitted && <p className="text-green-600 mb-4">✅ Data sent successfully.</p>}
 
       <div className="flex gap-4">
-        {!submitted && (
-          <button
-            onClick={handleSubmit}
-            className="px-4 py-2 bg-green-600 text-white rounded"
-          >
-            Pay for your video
-          </button>
-        )}
+        <button
+          onClick={handleSubmit}
+          disabled={loading}
+          className="px-4 py-2 bg-green-600 text-white rounded"
+        >
+          Pay for your video
+        </button>
         <button
           onClick={() => {
             resetGame();
