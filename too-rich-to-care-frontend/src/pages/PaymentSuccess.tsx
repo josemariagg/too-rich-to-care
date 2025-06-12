@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 
 function fileToBase64(file: File): Promise<string> {
@@ -20,6 +20,9 @@ export default function PaymentSuccess() {
   const [downloadUrl, setDownloadUrl] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [selfie, setSelfie] = useState<File | null>(null);
+  const [cameraActive, setCameraActive] = useState(false);
+  const [stream, setStream] = useState<MediaStream | null>(null);
+  const videoRef = useRef<HTMLVideoElement | null>(null);
   const [email, setEmail] = useState('');
   const [generating, setGenerating] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
@@ -74,6 +77,45 @@ export default function PaymentSuccess() {
     }
   };
 
+  const startCamera = async () => {
+    try {
+      const userStream = await navigator.mediaDevices.getUserMedia({ video: true });
+      if (videoRef.current) {
+        videoRef.current.srcObject = userStream;
+      }
+      setStream(userStream);
+      setCameraActive(true);
+    } catch (err) {
+      console.error('❌ Error activando la cámara:', err);
+      setError('No se pudo acceder a la cámara.');
+    }
+  };
+
+  const stopCamera = () => {
+    stream?.getTracks().forEach((t) => t.stop());
+    setStream(null);
+    setCameraActive(false);
+  };
+
+  const capturePhoto = () => {
+    if (!videoRef.current) return;
+    const video = videoRef.current;
+    const canvas = document.createElement('canvas');
+    canvas.width = video.videoWidth;
+    canvas.height = video.videoHeight;
+    const ctx = canvas.getContext('2d');
+    if (ctx) {
+      ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+      canvas.toBlob((blob) => {
+        if (blob) {
+          const file = new File([blob], 'selfie.jpg', { type: 'image/jpeg' });
+          setSelfie(file);
+        }
+        stopCamera();
+      }, 'image/jpeg');
+    }
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-b from-[#0D0F1A] to-[#131623] text-white flex flex-col items-center justify-center p-4 font-sans">
       <h1 className="text-2xl font-bold mb-4">Pago confirmado ✅</h1>
@@ -82,13 +124,38 @@ export default function PaymentSuccess() {
       </p>
 
       <div className="mb-4 flex flex-col items-center">
-        <input
-          type="file"
-          accept="image/*"
-          capture="user"
-          onChange={(e) => setSelfie(e.target.files?.[0] || null)}
-          className="mb-2 text-black"
-        />
+        {cameraActive ? (
+          <>
+            <video ref={videoRef} className="mb-2 w-64 h-48 bg-black rounded" />
+            <button
+              onClick={capturePhoto}
+              className="mb-2 px-4 py-2 bg-yellow-300 text-black rounded font-bold hover:bg-yellow-200 transition"
+            >
+              Tomar foto
+            </button>
+            <button
+              onClick={stopCamera}
+              className="mb-2 px-4 py-2 bg-gray-500 text-white rounded font-bold hover:bg-gray-400 transition"
+            >
+              Cerrar cámara
+            </button>
+          </>
+        ) : (
+          <>
+            <input
+              type="file"
+              accept="image/*"
+              onChange={(e) => setSelfie(e.target.files?.[0] || null)}
+              className="mb-2 text-black"
+            />
+            <button
+              onClick={startCamera}
+              className="mb-2 px-4 py-2 bg-yellow-300 text-black rounded font-bold hover:bg-yellow-200 transition"
+            >
+              Usar cámara
+            </button>
+          </>
+        )}
         <input
           type="email"
           placeholder="tu@correo.com"
