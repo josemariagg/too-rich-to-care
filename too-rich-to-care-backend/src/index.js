@@ -11,8 +11,18 @@ dotenv.config();
 const app = express();
 const PORT = process.env.PORT || 5000;
 
+// Allowed origins for CORS. If the environment variable is not defined,
+// fall back to the hardcoded list used previously.
+const allowedOrigins = process.env.CORS_ORIGINS
+  ? process.env.CORS_ORIGINS.split(',').map(origin => origin.trim())
+  : [
+      'http://localhost:5173',
+      'https://too-rich-to-care-frontend.vercel.app',
+      'https://app.2richtocare.com',
+    ];
+
 app.use(cors({
-  origin: ['http://localhost:5173', 'https://too-rich-to-care-frontend.vercel.app', 'https://app.2richtocare.com'],
+  origin: allowedOrigins,
 }));
 
 // Raw body parser SOLO para webhook Stripe
