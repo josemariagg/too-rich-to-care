@@ -1,6 +1,7 @@
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useGame } from '../context/GameContext';
 import { useState } from 'react';
+import { motion } from 'framer-motion';
 import { v4 as uuidv4 } from 'uuid';
 import GameLayout from '../components/GameLayout';
 
@@ -20,7 +21,7 @@ type ShoppingBagItem = {
 export default function Summary() {
   const navigate = useNavigate();
   const location = useLocation();
-  const { billionaire, spendingActions, totalSpent, resetGame, userId } = useGame();
+  const { billionaire, totalSpent, resetGame, userId } = useGame();
   const shoppingBag: ShoppingBagItem[] = location.state?.shoppingBag || [];
   const [name, setName] = useState('');
   const [loading, setLoading] = useState(false);
@@ -71,11 +72,11 @@ export default function Summary() {
       if (data.url) {
         window.location.href = data.url;
       } else {
-        setError('No se pudo iniciar el pago.');
+        setError('Could not start the payment.');
       }
     } catch (err) {
-      console.error('Error en checkout:', err);
-      setError('Hubo un error al procesar el pago.');
+      console.error('Checkout error:', err);
+      setError('There was an error processing the payment.');
     } finally {
       setLoading(false);
     }
@@ -106,25 +107,50 @@ export default function Summary() {
       <p className="mb-4">Spent: $ {totalSpent.toLocaleString()} — Remaining: $ {remaining.toLocaleString()}</p>
 
       <h2 className="text-xl font-semibold mb-2">You spent on:</h2>
-      <ul className="list-disc list-inside mb-6">
-        {spendingActions.map((action, index) => (
-          <li key={index}>
-            {action.label} — $ {action.cost.toLocaleString()}
-          </li>
+      <motion.ul
+        className="space-y-3 mb-6"
+        initial="hidden"
+        animate="visible"
+        variants={{
+          visible: { transition: { staggerChildren: 0.1 } },
+        }}
+      >
+        {shoppingBag.map(({ item, quantity }) => (
+          <motion.li
+            key={item.name}
+            className="flex justify-between items-center bg-[#2A2F40] p-2 rounded-lg"
+            variants={{ hidden: { opacity: 0, x: -20 }, visible: { opacity: 1, x: 0 } }}
+          >
+            <div className="flex items-center gap-2">
+              {item.icon && (
+                <img
+                  src={`/animations/luxury-cart/${item.icon}.png`}
+                  alt={item.name}
+                  className="w-8 h-8 object-contain"
+                />
+              )}
+              <span>
+                {item.name} x{quantity}
+              </span>
+            </div>
+            <span className="text-green-400 font-semibold">
+              $ {(item.price * quantity).toLocaleString()}
+            </span>
+          </motion.li>
         ))}
-      </ul>
+      </motion.ul>
 
       <div className="mb-4">
-        <label className="block mb-2">Tu nombre</label>
+        <label className="block mb-2">Your name</label>
         <input
           className="w-full p-2 rounded text-black"
           value={name}
           onChange={(e) => setName(e.target.value)}
-          placeholder="Ingresa tu nombre"
+          placeholder="Enter your name"
         />
       </div>
       <p className="mb-6 text-gray-300">
-        Al continuar serás redirigido a nuestra pasarela de pago segura para completar tu compra.
+        You will be redirected to our secure payment gateway to pay €3 for your personalized video.
       </p>
 
       {error && <p className="text-red-600 mb-4">{error}</p>}
@@ -133,9 +159,9 @@ export default function Summary() {
         <button
           onClick={handleSubmit}
           disabled={loading}
-          className="px-4 py-2 bg-green-600 text-white rounded"
+          className="px-4 py-2 bg-green-600 text-white rounded font-bold"
         >
-          Pay for your video
+          Pay €3 for your video
         </button>
         <button
           onClick={() => {
