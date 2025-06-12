@@ -1,5 +1,6 @@
 import { useNavigate } from 'react-router-dom';
 import { useGame, Billionaire } from '../context/GameContext';
+import GameLayout from '../components/GameLayout';
 
 const billionaires: Billionaire[] = [
   {
@@ -57,7 +58,8 @@ export default function SelectBillionaire() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-[#0D0F1A] to-[#131623] text-white flex flex-col items-center py-10 px-4 font-sans">
+    <GameLayout>
+      <div className="flex flex-col items-center py-10 px-4 relative z-10">
       <img
         src="/assets/LogoB.png"
         alt="Too Rich To Care logo"
@@ -94,6 +96,7 @@ export default function SelectBillionaire() {
           </div>
         ))}
       </div>
-    </div>
+      </div>
+    </GameLayout>
   );
 }

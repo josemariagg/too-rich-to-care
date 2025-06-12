@@ -2,6 +2,7 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import { useGame } from '../context/GameContext';
 import { useState } from 'react';
 import { v4 as uuidv4 } from 'uuid';
+import GameLayout from '../components/GameLayout';
 
 // Types matching the ones from SpendMoney
 export type LuxuryItem = {
@@ -86,7 +87,8 @@ export default function CheckoutReview() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-[#0D0F1A] to-[#131623] text-white p-4 sm:p-8 font-sans">
+    <GameLayout>
+    <div className="p-4 sm:p-8 relative z-10">
       <h1 className="text-2xl font-bold mb-4">Resumen de tu compra</h1>
       <ul className="mb-4 space-y-2">
         {shoppingBag.map(({ item, quantity }) => (
@@ -118,5 +120,6 @@ export default function CheckoutReview() {
         Continuar con el pago
       </button>
     </div>
+    </GameLayout>
   );
 }

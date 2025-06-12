@@ -5,6 +5,7 @@ import { useNavigate } from 'react-router-dom';
 import LuxuryCard from '../components/LuxuryCard';
 import FallingItem from "../components/FallingItem";
 import LuxuryCartAnimation from "../components/LuxuryCartAnimation";
+import GameLayout from '../components/GameLayout';
 
 // Types
 type Category = 'Luxury' | 'Absurd' | 'World Impact' | 'Celebrity' | 'Hidden Gems';
@@ -114,7 +115,8 @@ export default function SpendMoney() {
   const filteredItems = items.filter((i) => i.category === activeCategory);
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-[#0D0F1A] to-[#131623] text-white p-4 sm:p-8 font-sans overflow-x-hidden">
+    <GameLayout>
+    <div className="p-4 sm:p-8 overflow-x-hidden relative z-10">
       {flashMessage && (
         <motion.div
           initial={{ opacity: 0, y: -10 }}
@@ -228,5 +230,6 @@ export default function SpendMoney() {
         </div>
       </div>
     </div>
+    </GameLayout>
   );
 }

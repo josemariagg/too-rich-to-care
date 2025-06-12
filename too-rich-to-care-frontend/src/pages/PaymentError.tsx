@@ -1,9 +1,11 @@
 import { useNavigate } from 'react-router-dom';
+import GameLayout from '../components/GameLayout';
 
 export default function PaymentError() {
   const navigate = useNavigate();
   return (
-    <div className="min-h-screen bg-gradient-to-b from-[#0D0F1A] to-[#131623] text-white flex flex-col items-center justify-center p-4 font-sans">
+    <GameLayout>
+    <div className="flex flex-col items-center justify-center p-4 relative z-10">
       <h1 className="text-2xl font-bold mb-4">Pago no realizado ❌</h1>
       <p className="mb-6 text-center max-w-md">
         Parece que hubo un problema procesando tu pago. Por favor intenta nuevamente.
@@ -15,5 +17,6 @@ export default function PaymentError() {
         Volver a la tienda
       </button>
     </div>
+    </GameLayout>
   );
 }
