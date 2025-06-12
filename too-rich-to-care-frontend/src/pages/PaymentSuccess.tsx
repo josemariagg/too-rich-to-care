@@ -5,13 +5,25 @@ export default function PaymentSuccess() {
   const location = useLocation();
   const navigate = useNavigate();
   const [downloadUrl, setDownloadUrl] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     const params = new URLSearchParams(location.search);
     const cartId = params.get('cartId');
     if (cartId) {
-      // Placeholder for backend polling. Assume the backend provides a download endpoint
-      setDownloadUrl(`${import.meta.env.VITE_API_URL}/api/videos/${cartId}`);
+      const url = `${import.meta.env.VITE_API_URL}/api/videos/${cartId}`;
+      fetch(url, { method: 'HEAD' })
+        .then((res) => {
+          if (res.ok) {
+            setDownloadUrl(url);
+          } else {
+            setError('El video aún no está disponible.');
+          }
+        })
+        .catch((err) => {
+          console.error('❌ Error verificando el video:', err);
+          setError('No se pudo obtener el video.');
+        });
     }
   }, [location.search]);
 
@@ -28,6 +40,8 @@ export default function PaymentSuccess() {
         >
           Descargar video
         </a>
+      ) : error ? (
+        <p className="mb-6 text-gray-300">{error}</p>
       ) : (
         <p className="mb-6 text-gray-300">Generando enlace de descarga...</p>
       )}
