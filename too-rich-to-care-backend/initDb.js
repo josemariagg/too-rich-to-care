@@ -43,6 +43,7 @@ async function initDb() {
     CREATE TABLE carts (
       id UUID PRIMARY KEY,
       user_id TEXT,
+      name TEXT,
       created_at TIMESTAMP DEFAULT NOW()
     );
 
