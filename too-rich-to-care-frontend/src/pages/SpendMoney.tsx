@@ -3,8 +3,6 @@ import { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import LuxuryCard from '../components/LuxuryCard';
-import FallingItem from "../components/FallingItem";
-import LuxuryCartAnimation from "../components/LuxuryCartAnimation";
 import GameLayout from '../components/GameLayout';
 
 // Types
@@ -21,8 +19,8 @@ type LuxuryItem = {
 type ShoppingBagItem = {
   item: LuxuryItem;
   quantity: number;
-  positions: { x: number; y: number }[];
 };
+
 
 const items: LuxuryItem[] = [
   { name: 'Private Island', price: 50000000, description: 'Because privacy is priceless.', icon: 'luxury-island', category: 'Luxury' },
@@ -42,7 +40,6 @@ export default function SpendMoney() {
   const [shoppingBag, setShoppingBag] = useState<ShoppingBagItem[]>([]);
   const [activeCategory, setActiveCategory] = useState<Category>('Luxury');
   const [flashMessage, setFlashMessage] = useState<string>('');
-  const [fallingItems, setFallingItems] = useState<{ id: string, icon: string, startX: number }[]>([]);
 
   useEffect(() => {
     if (!billionaire) {
@@ -53,19 +50,9 @@ export default function SpendMoney() {
   }, [billionaire, navigate]);
 
   const netWorth = billionaire?.netWorth || 1;
-  const spent = netWorth - moneyLeft;
-  const percentage = Math.min((spent / netWorth) * 100, 100);
-  let progressColor = "bg-green-400";
-  if (percentage > 66) progressColor = "bg-red-500";
-  else if (percentage > 33) progressColor = "bg-yellow-400";
 
   const handleBuy = (item: LuxuryItem, quantity: number) => {
     const totalCost = item.price * quantity;
-    const newPositions = Array.from({ length: quantity }).map(() => ({
-      x: Math.random() * 60 - 30,
-      y: Math.random() * 40
-    }));
-
     if (moneyLeft >= totalCost) {
       const messages = [
         `You just bought ${quantity}× ${item.name}. Why not?`,
@@ -77,39 +64,40 @@ export default function SpendMoney() {
       setFlashMessage(randomMsg);
       setTimeout(() => setFlashMessage(''), 2000);
       setShoppingBag((prev) => {
-        const existing = prev.find((entry) => entry.item.name === item.name);
+        const existing = prev.find((e) => e.item.name === item.name);
         if (existing) {
-          return prev.map((entry) =>
-            entry.item.name === item.name
-              ? { ...entry, quantity: entry.quantity + quantity, positions: [...entry.positions, ...newPositions] }
-              : entry
+          return prev.map((e) =>
+            e.item.name === item.name ? { ...e, quantity: e.quantity + quantity } : e
           );
-        } else {
-          return [...prev, { item, quantity, positions: newPositions }];
         }
+        return [...prev, { item, quantity }];
       });
       setMoneyLeft((prev) => prev - totalCost);
     }
   };
 
   const handleRemove = (name: string) => {
-    const removed = shoppingBag.find((entry) => entry.item.name === name);
+    const removed = shoppingBag.find((e) => e.item.name === name);
     if (removed) {
       setMoneyLeft((prev) => prev + removed.item.price * removed.quantity);
     }
-    setShoppingBag((prev) => prev.filter((entry) => entry.item.name !== name));
+    setShoppingBag((prev) => prev.filter((e) => e.item.name !== name));
   };
 
   const updateQuantity = (name: string, delta: number) => {
+    const entry = shoppingBag.find((e) => e.item.name === name);
+    if (!entry) return;
+    const costChange = entry.item.price * delta;
+    if (delta > 0 && moneyLeft < costChange) return;
+
     setShoppingBag((prev) =>
-      prev.map((entry) =>
-        entry.item.name === name ? { ...entry, quantity: entry.quantity + delta } : entry
-      ).filter((entry) => entry.quantity > 0)
+      prev
+        .map((e) =>
+          e.item.name === name ? { ...e, quantity: e.quantity + delta } : e
+        )
+        .filter((e) => e.quantity > 0)
     );
-    const item = shoppingBag.find((entry) => entry.item.name === name);
-    if (item) {
-      setMoneyLeft((prev) => prev - item.item.price * delta);
-    }
+    setMoneyLeft((prev) => prev - costChange);
   };
 
   const filteredItems = items.filter((i) => i.category === activeCategory);
@@ -139,10 +127,10 @@ export default function SpendMoney() {
               <button
                 key={cat}
                 onClick={() => setActiveCategory(cat as Category)}
-                className={`w-full px-4 py-2 rounded-full text-sm font-semibold transition ${
+                className={`w-full px-4 py-3 rounded-xl text-sm font-bold transform transition hover:-translate-y-1 ${
                   activeCategory === cat
-                    ? 'bg-yellow-300 text-black'
-                    : 'bg-[#2C2F40] text-white hover:bg-[#3A3F55]'
+                    ? 'bg-gradient-to-r from-yellow-300 to-pink-400 text-black shadow-lg'
+                    : 'bg-[#1D2233] text-white hover:bg-[#2A314A]'
                 }`}
               >
                 {cat}
@@ -174,60 +162,37 @@ export default function SpendMoney() {
             ${moneyLeft.toLocaleString()}
           </motion.div>
 
-          <div id="fall-zone" className="relative w-full max-w-[600px] sm:w-[600px] h-[600px] sm:h-[660px] mx-auto bg-[#10131F] rounded-xl overflow-hidden -mt-20">
-            <LuxuryCartAnimation x={128} y={200} width={360} fallingItems={fallingItems} />
-            {fallingItems.map((item) => (
-              <FallingItem key={item.id} id={item.id} icon={item.icon} />
-            ))}
+          <div id="fall-zone" className="relative w-full max-w-[600px] sm:w-[600px] h-[600px] sm:h-[660px] mx-auto bg-[#10131F] rounded-xl overflow-hidden -mt-20 flex items-center justify-center">
+            <span className="text-gray-600">Buy something to burn that cash!</span>
           </div>
         </div>
 
-        {/* COLUMN 4: Bolsa */}
+        {/* COLUMN 4: Purchases */}
         <div className="order-4 md:order-none w-full md:w-[260px] shrink-0">
           <div className="bg-[#1D2233] p-4 rounded-xl border border-[#2A2F40]">
-            <h3 className="text-lg text-yellow-200 mb-2">🧾 Shopping Bag</h3>
+            <h3 className="text-lg text-yellow-200 mb-2">🧾 Items Bought</h3>
             {shoppingBag.length === 0 ? (
               <p className="text-gray-400 text-sm">No purchases yet.</p>
             ) : (
-              <ul className="space-y-3 overflow-y-auto max-h-[50vh] pr-2">
+              <ul className="space-y-2 max-h-[50vh] overflow-y-auto pr-1">
                 {shoppingBag.map(({ item, quantity }) => (
-                  <motion.li
-                    key={item.name}
-                    initial={{ opacity: 0, y: 5 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, y: -5 }}
-                    className="flex justify-between items-center text-sm bg-[#2A2F40] p-2 rounded-lg"
-                  >
+                  <li key={item.name} className="flex justify-between items-center text-sm bg-[#2A2F40] p-2 rounded-lg">
                     <div className="flex items-center gap-2">
-                      <img src={`/animations/luxury-cart/${item.icon}.png`} alt={item.name} className="w-8 h-8 object-contain" />
-                      <div className="flex flex-col">
-                        <span>{item.name}</span>
-                        <span className="text-xs text-gray-400">Qty: {quantity} | ${item.price * quantity}</span>
-                      </div>
+                      <img src={`/animations/luxury-cart/${item.icon}.png`} alt={item.name} className="w-6 h-6" />
+                      <span>{item.name} × {quantity}</span>
                     </div>
-                    <div className="flex items-center gap-2">
+                    <div className="flex items-center gap-1">
                       <button onClick={() => updateQuantity(item.name, -1)} className="text-yellow-300 text-xs">➖</button>
                       <button onClick={() => updateQuantity(item.name, +1)} className="text-yellow-300 text-xs">➕</button>
-                      <button onClick={() => handleRemove(item.name)} className="text-red-400 hover:text-red-300 text-xs">❌</button>
+                      <button onClick={() => handleRemove(item.name)} className="text-red-400 text-xs">❌</button>
                     </div>
-                  </motion.li>
+                  </li>
                 ))}
               </ul>
             )}
-            <div className="mt-4 text-right text-green-400 font-bold">
-              Total: ${shoppingBag.reduce((sum, entry) => sum + entry.item.price * entry.quantity, 0).toLocaleString()}
-            </div>
-            <div className="w-full bg-[#2A2F40] rounded-full h-3 mt-4">
-              <div className={`h-3 rounded-full transition-all ${progressColor}`} style={{ width: `${percentage}%` }}></div>
-            </div>
-            <button
-               onClick={() => navigate('/checkout', { state: { shoppingBag } })}
-              className="mt-6 w-full bg-yellow-300 text-black text-base sm:text-lg py-3 rounded-full font-bold hover:bg-yellow-200 transition"
-            >
-              🔓 Customize & Download
-            </button>
           </div>
         </div>
+
       </div>
     </div>
     </GameLayout>
