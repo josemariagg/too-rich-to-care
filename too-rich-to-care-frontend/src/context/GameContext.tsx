@@ -25,7 +25,7 @@ type GameContextType = {
   userId: string;
 };
 
-const GameContext = createContext<GameContextType | undefined>(undefined);
+export const GameContext = createContext<GameContextType | undefined>(undefined);
 
 export const GameProvider = ({ children }: { children: ReactNode }) => {
   const [billionaire, setBillionaire] = useState<Billionaire | null>(null);
