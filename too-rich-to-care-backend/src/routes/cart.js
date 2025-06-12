@@ -4,7 +4,7 @@ import { pool } from '../db.js';
 const router = express.Router();
 
 router.post('/save-cart', async (req, res) => {
-  const { cartId, userId, items } = req.body;
+  const { cartId, userId, name, items } = req.body;
 
   if (!cartId || !userId || !Array.isArray(items)) {
     return res.status(400).json({ error: 'Datos incompletos para guardar carrito' });
@@ -17,8 +17,8 @@ router.post('/save-cart', async (req, res) => {
 
     // Guardar carrito
     await client.query(
-      'INSERT INTO carts (id, user_id) VALUES ($1, $2)',
-      [cartId, userId]
+      'INSERT INTO carts (id, user_id, name) VALUES ($1, $2, $3)',
+      [cartId, userId, name]
     );
 
     // Guardar ítems del carrito
