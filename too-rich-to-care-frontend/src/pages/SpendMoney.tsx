@@ -175,7 +175,7 @@ export default function SpendMoney() {
             ${moneyLeft.toLocaleString()}
           </motion.div>
 
-          <div id="fall-zone" className="relative w-full max-w-[600px] sm:w-[600px] h-[600px] sm:h-[660px] mx-auto bg-[#10131F] rounded-xl overflow-hidden -mt-20 flex items-center justify-center">
+          <div id="fall-zone" className="relative w-full max-w-[600px] sm:w-[600px] h-[600px] sm:h-[660px] mx-auto rounded-xl overflow-hidden -mt-20 flex items-center justify-center">
             <span className="text-gray-600">Buy something to burn that cash!</span>
           </div>
         </div>
