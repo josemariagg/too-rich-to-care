@@ -13,14 +13,14 @@ const objectIds = [
   'CH002_MercedesBenz300SL',
 ];
 
-// Ruta base absoluta para crear carpetas
+// Absolute base path to create folders
 const baseDir = path.join(__dirname, '..', 'assets', 'objects');
 
 for (const id of objectIds) {
   const folder = path.join(baseDir, id);
   fs.mkdirSync(folder, { recursive: true });
 
-  // Archivos base para cada carpeta con contenido inicial
+  // Base files for each folder with initial content
   const files = {
     'video.mp4': '',
     'thumbnail.jpg': '',
@@ -35,11 +35,11 @@ for (const id of objectIds) {
     }
   }
 
-  // Archivo .gitkeep para asegurar que la carpeta se suba aunque esté vacía
+  // .gitkeep file to ensure the folder is committed even if empty
   const gitkeepPath = path.join(folder, '.gitkeep');
   if (!fs.existsSync(gitkeepPath)) {
     fs.writeFileSync(gitkeepPath, '');
   }
 
-  console.log(`✅ Carpeta creada: ${folder}`);
+  console.log(`✅ Folder created: ${folder}`);
 }

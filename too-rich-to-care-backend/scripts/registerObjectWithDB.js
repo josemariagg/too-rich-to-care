@@ -39,7 +39,7 @@ async function registerObject(objectCode) {
     const objectUrl = await uploadFile(path.join(folder, 'object.png'), `${objectCode}/object`);
     console.log('✅ object.png subido');
 
-    // Construcción de datos finales para DB
+    // Build final data for the DB
     const finalData = {
       ...meta,
       code: objectCode,
@@ -48,7 +48,7 @@ async function registerObject(objectCode) {
       object_url: objectUrl,
     };
 
-    // Asegurarse de tener un ID único para la tabla (meta debe tener id o usar otro campo)
+    // Ensure we have a unique ID for the table (meta should have id or use another field)
     if (!finalData.id) {
       finalData.id = objectCode; // fallback a objectCode si id no existe en meta.json
     }
@@ -101,7 +101,7 @@ async function registerObject(objectCode) {
 
 const args = process.argv.slice(2);
 if (!args[0]) {
-  console.error('❌ Debes pasar el código del objeto. Ej: node scripts/registerObjectWithDB.js JY004_SkyDragonGX700');
+  console.error('❌ You must pass the object code. e.g. node scripts/registerObjectWithDB.js JY004_SkyDragonGX700');
   process.exit(1);
 }
 

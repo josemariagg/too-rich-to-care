@@ -3,7 +3,7 @@ import { pool } from '../db.js';
 
 const router = express.Router();
 
-// POST /choices – registrar elección de multimillonario
+// POST /choices – save billionaire selection
 router.post('/', async (req, res) => {
   const { billionaire, userId } = req.body;
 
@@ -23,7 +23,7 @@ router.post('/', async (req, res) => {
   }
 });
 
-// GET /choices – obtener todas las elecciones
+// GET /choices – retrieve all selections
 router.get('/', async (req, res) => {
   try {
     const result = await pool.query('SELECT * FROM choices ORDER BY created_at DESC');

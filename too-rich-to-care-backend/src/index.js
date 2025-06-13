@@ -26,21 +26,21 @@ app.use(cors({
   origin: allowedOrigins,
 }));
 
-// Raw body parser SOLO para webhook Stripe
+// Raw body parser ONLY for the Stripe webhook
 app.use('/api/payments/webhook', express.raw({ type: 'application/json' }));
 
-// JSON parser para todo lo demás
+// JSON parser for everything else
 app.use(express.json());
 
-// Rutas sin conflicto
+// Non-conflicting routes
 app.use('/choices', choicesRoutes);
 app.use('/api/cart', cartRoutes);
 app.use('/api/videos', videosRoutes);
 
 
-// Aquí dividimos el router de pagos en dos rutas:
-// - webhook (raw) ya registrado arriba
-// - resto de /api/payments usando json normalmente
+// Here we split the payments router into two routes:
+// - webhook (raw) registered above
+// - the rest of /api/payments using json normally
 app.use('/api/payments', (req, res, next) => {
   if (req.originalUrl === '/api/payments/webhook') {
     return next();
@@ -49,7 +49,7 @@ app.use('/api/payments', (req, res, next) => {
 }, paymentsRouter);
 
 app.get('/', (req, res) => {
-  res.send('✅ Backend Too Rich To Care funcionando');
+  res.send('✅ Too Rich To Care backend running');
 });
 
 app.get('/api/health', (req, res) => {
@@ -57,5 +57,5 @@ app.get('/api/health', (req, res) => {
 });
 
 app.listen(PORT, '0.0.0.0', () => {
-  console.log(`🟢 Servidor corriendo en 0.0.0.0:${PORT}`);
+  console.log(`🟢 Server running on 0.0.0.0:${PORT}`);
 });

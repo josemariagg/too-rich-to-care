@@ -28,14 +28,21 @@ export default function PaymentSuccess() {
   const [email, setEmail] = useState('');
   const [generating, setGenerating] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
+  const [validationMessage, setValidationMessage] = useState<string | null>(null);
+  const [selfieValid, setSelfieValid] = useState(false);
 
   useEffect(() => {
     if (selfie) {
       const objectUrl = URL.createObjectURL(selfie);
       setPreview(objectUrl);
-      return () => URL.revokeObjectURL(objectUrl);
+      validateSelfie(selfie);
+      return () => {
+        URL.revokeObjectURL(objectUrl);
+      };
     }
     setPreview(null);
+    setSelfieValid(false);
+    setValidationMessage(null);
   }, [selfie]);
 
   useEffect(() => {
@@ -48,12 +55,12 @@ export default function PaymentSuccess() {
           if (res.ok) {
             setDownloadUrl(url);
           } else {
-            setError('El video aún no está disponible.');
+            setError('The video is not available yet.');
           }
         })
         .catch((err) => {
-          console.error('❌ Error verificando el video:', err);
-          setError('No se pudo obtener el video.');
+          console.error('❌ Error checking video:', err);
+          setError('Could not fetch the video.');
         });
     }
   }, [location.search]);
@@ -61,8 +68,8 @@ export default function PaymentSuccess() {
   const handleGenerate = async () => {
     const params = new URLSearchParams(location.search);
     const cartId = params.get('cartId');
-    if (!cartId || !selfie || !email) {
-      setError('Debes subir una selfie y escribir un correo.');
+    if (!cartId || !selfie || !email || !selfieValid) {
+      setError('You must upload a valid selfie and provide an email.');
       return;
     }
     setGenerating(true);
@@ -76,13 +83,13 @@ export default function PaymentSuccess() {
         body: JSON.stringify({ cartId, email, selfie: selfieData }),
       });
       if (res.ok) {
-        setMessage('Solicitud enviada. Te avisaremos cuando el video esté listo.');
+        setMessage('Request sent. We will let you know when your video is ready.');
       } else {
-        setError('No se pudo enviar la solicitud.');
+        setError('Could not send the request.');
       }
     } catch (err) {
-      console.error('❌ Error enviando selfie:', err);
-      setError('Ocurrió un error al procesar tu selfie.');
+      console.error('❌ Error sending selfie:', err);
+      setError('There was an error processing your selfie.');
     } finally {
       setGenerating(false);
     }
@@ -97,8 +104,8 @@ export default function PaymentSuccess() {
       setStream(userStream);
       setCameraActive(true);
     } catch (err) {
-      console.error('❌ Error activando la cámara:', err);
-      setError('No se pudo acceder a la cámara.');
+      console.error('❌ Error activating camera:', err);
+      setError('Could not access the camera.');
     }
   };
 
@@ -127,14 +134,60 @@ export default function PaymentSuccess() {
     }
   };
 
+  async function validateSelfie(file: File) {
+    setValidationMessage(null);
+    setSelfieValid(false);
+    if (!file.type.startsWith('image/')) {
+      setValidationMessage('Invalid image format.');
+      return;
+    }
+    if (file.size > 5 * 1024 * 1024) {
+      setValidationMessage('Image is too large.');
+      return;
+    }
+    try {
+      const url = URL.createObjectURL(file);
+      const img = new Image();
+      img.src = url;
+      await img.decode();
+      if ('FaceDetector' in window) {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const detector = new (window as any).FaceDetector();
+        const faces = await detector.detect(img);
+        if (faces.length !== 1) {
+          setValidationMessage('Could not detect a clear face. Try again.');
+          URL.revokeObjectURL(url);
+          return;
+        }
+      }
+      setSelfieValid(true);
+      setValidationMessage('Selfie looks good!');
+      URL.revokeObjectURL(url);
+    } catch (err) {
+      console.error('❌ Error validating selfie:', err);
+      setValidationMessage('There was a problem validating the selfie.');
+    }
+  }
+
   return (
     <GameLayout>
     <div className="flex flex-col items-center justify-center p-4 relative z-10">
       <div className="glassy-card p-6 w-full max-w-md flex flex-col items-center">
-        <h1 className="text-2xl font-bold mb-4">Pago confirmado ✅</h1>
+        <h1 className="text-2xl font-bold mb-4">Payment confirmed ✅</h1>
         <p className="mb-4 text-center">
-          Gracias por tu compra. Para finalizar sube una selfie y un correo donde enviaremos tu video personalizado.
+          Thank you for your purchase. Upload a selfie and provide an email so we can send your personalized video.
         </p>
+
+        <div className="mb-4 p-3 bg-gray-800 rounded w-full text-sm">
+          <p className="font-bold mb-1">📸 Take your selfie</p>
+          <ul className="list-disc list-inside space-y-1 text-left">
+            <li>Face the camera directly</li>
+            <li>Use good lighting</li>
+            <li>No sunglasses or masks</li>
+            <li>Only one person</li>
+          </ul>
+          <p className="text-xs mt-2 text-center">(This helps us make your video look great)</p>
+        </div>
 
       <div className="mb-4 flex flex-col items-center">
         {cameraActive ? (
@@ -144,13 +197,13 @@ export default function PaymentSuccess() {
               onClick={capturePhoto}
               className="mb-2 px-4 py-2 bg-yellow-300 text-black rounded font-bold hover:bg-yellow-200 transition"
             >
-              Tomar foto
+              Take photo
             </button>
             <button
               onClick={stopCamera}
               className="mb-2 px-4 py-2 bg-gray-500 text-white rounded font-bold hover:bg-gray-400 transition"
             >
-              Cerrar cámara
+              Close camera
             </button>
           </>
         ) : (
@@ -166,7 +219,7 @@ export default function PaymentSuccess() {
                   onClick={() => setSelfie(null)}
                   className="mb-2 px-3 py-1 bg-gray-500 text-white rounded text-sm hover:bg-gray-400"
                 >
-                  Cambiar foto
+                  Change photo
                 </button>
               </>
             )}
@@ -180,23 +233,26 @@ export default function PaymentSuccess() {
               onClick={startCamera}
               className="mb-2 px-4 py-2 bg-yellow-300 text-black rounded font-bold hover:bg-yellow-200 transition"
             >
-              Usar cámara
+              Use camera
             </button>
+            {validationMessage && (
+              <p className={`mb-2 ${selfieValid ? 'text-green-400' : 'text-yellow-300'}`}>{validationMessage}</p>
+            )}
           </>
         )}
         <input
           type="email"
-          placeholder="tu@correo.com"
+          placeholder="you@example.com"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
           className="p-2 rounded text-black mb-2"
         />
         <button
           onClick={handleGenerate}
-          disabled={generating}
+          disabled={generating || !selfieValid || !email}
           className="px-4 py-2 bg-yellow-300 text-black rounded font-bold hover:bg-yellow-200 transition disabled:opacity-50"
         >
-          {generating ? 'Enviando...' : 'Generar video'}
+          {generating ? 'Sending...' : 'Generate video'}
         </button>
         {message && <p className="mt-2 text-green-400 text-center">{message}</p>}
       </div>
@@ -205,18 +261,18 @@ export default function PaymentSuccess() {
           href={downloadUrl}
           className="mb-6 px-4 py-2 bg-yellow-300 text-black rounded font-bold hover:bg-yellow-200 transition"
         >
-          Descargar video
+          Download video
         </a>
       ) : error ? (
         <p className="mb-6 text-gray-300">{error}</p>
       ) : (
-        <p className="mb-6 text-gray-300">Generando enlace de descarga...</p>
+        <p className="mb-6 text-gray-300">Generating download link...</p>
       )}
       <button
         onClick={() => navigate('/')}
         className="px-4 py-2 bg-yellow-300 text-black rounded font-bold hover:bg-yellow-200 transition"
       >
-        Volver al inicio
+        Back to start
       </button>
     </div>
     </div>
