@@ -7,7 +7,7 @@ router.post('/save-cart', async (req, res) => {
   const { cartId, userId, name, items } = req.body;
 
   if (!cartId || !userId || !Array.isArray(items)) {
-    return res.status(400).json({ error: 'Datos incompletos para guardar carrito' });
+    return res.status(400).json({ error: 'Incomplete data to save cart' });
   }
 
   const client = await pool.connect();
@@ -15,13 +15,13 @@ router.post('/save-cart', async (req, res) => {
   try {
     await client.query('BEGIN');
 
-    // Guardar carrito
+    // Save cart
     await client.query(
       'INSERT INTO carts (id, user_id, name) VALUES ($1, $2, $3)',
       [cartId, userId, name]
     );
 
-    // Guardar ítems del carrito
+    // Save cart items
     for (const item of items) {
       const { item_id, item_name, category, quantity, item_order } = item;
       await client.query(
@@ -32,11 +32,11 @@ router.post('/save-cart', async (req, res) => {
     }
 
     await client.query('COMMIT');
-    res.status(200).json({ message: '🛒 Carrito guardado correctamente' });
+    res.status(200).json({ message: '🛒 Cart saved successfully' });
   } catch (err) {
     await client.query('ROLLBACK');
-    console.error('❌ Error guardando carrito:', err);
-    res.status(500).json({ error: 'Error guardando carrito' });
+    console.error('❌ Error saving cart:', err);
+    res.status(500).json({ error: 'Error saving cart' });
   } finally {
     client.release();
   }

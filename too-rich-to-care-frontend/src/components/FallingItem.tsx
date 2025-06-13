@@ -6,7 +6,7 @@ type Props = {
   icon: string;
 };
 
-// Coordenadas del pentágono en canvas 600x600
+// Polygon coordinates on a 600x600 canvas
 const polygon: [number, number][] = [
   [190, 410],
   [220, 520],

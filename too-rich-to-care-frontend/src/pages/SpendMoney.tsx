@@ -130,7 +130,7 @@ export default function SpendMoney() {
       )}
 
       <div className="flex flex-col md:flex-row gap-6 max-w-[1200px] mx-auto">
-        {/* COLUMN 1: Categorías */}
+        {/* COLUMN 1: Categories */}
         <div className="order-1 md:order-none w-full md:w-[160px] shrink-0 space-y-4">
           <button onClick={() => navigate("/")} className="text-yellow-300 text-sm hover:underline">
             ← Back to billionaire selection

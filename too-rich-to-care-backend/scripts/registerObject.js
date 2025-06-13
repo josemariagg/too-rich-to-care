@@ -54,10 +54,10 @@ async function registerObject(objectCode) {
   }
 }
 
-// Recoger argumento desde la línea de comandos
+// Read argument from command line
 const args = process.argv.slice(2);
 if (!args[0]) {
-  console.error('❌ Debes pasar el código del objeto. Ejemplo: node registerObject.js JY004_SkyDragonGX700');
+  console.error('❌ You must pass the object code. Example: node registerObject.js JY004_SkyDragonGX700');
   process.exit(1);
 }
 

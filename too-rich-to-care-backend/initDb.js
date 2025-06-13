@@ -17,7 +17,7 @@ async function initDb() {
     DROP TABLE IF EXISTS payments;
     DROP TABLE IF EXISTS choices;
 
-    -- Tabla de pagos
+    -- Payments table
     CREATE TABLE payments (
       id SERIAL PRIMARY KEY,
       user_id TEXT,
@@ -29,7 +29,7 @@ async function initDb() {
       created_at TIMESTAMP DEFAULT NOW()
     );
 
-    -- Ítems comprados vinculados al pago
+    -- Purchased items linked to the payment
     CREATE TABLE purchased_items (
       id SERIAL PRIMARY KEY,
       payment_id INTEGER REFERENCES payments(id) ON DELETE CASCADE,
@@ -39,7 +39,7 @@ async function initDb() {
       quantity INTEGER NOT NULL
     );
 
-    -- Carrito guardado antes del pago
+    -- Cart saved before payment
     CREATE TABLE carts (
       id UUID PRIMARY KEY,
       user_id TEXT,
@@ -47,7 +47,7 @@ async function initDb() {
       created_at TIMESTAMP DEFAULT NOW()
     );
 
-    -- Ítems del carrito (con cantidad y orden de selección)
+    -- Cart items (with quantity and selection order)
     CREATE TABLE cart_items (
       id SERIAL PRIMARY KEY,
       cart_id UUID REFERENCES carts(id) ON DELETE CASCADE,
@@ -58,7 +58,7 @@ async function initDb() {
       item_order INTEGER NOT NULL
     );
 
-    -- Elección del multimillonario
+    -- Billionaire selection
     CREATE TABLE choices (
       id SERIAL PRIMARY KEY,
       billionaire TEXT NOT NULL,

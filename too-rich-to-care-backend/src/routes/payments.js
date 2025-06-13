@@ -8,10 +8,10 @@ dotenv.config();
 const router = express.Router();
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
 
-// ID de precio configurado en variables de entorno
+// Price ID configured via environment variables
 const STRIPE_PRICE_ID = process.env.STRIPE_PRICE_ID;
 
-// Crear sesión de pago con Stripe
+// Create checkout session with Stripe
 router.post('/create-checkout-session', async (req, res) => {
   console.log('Body recibido:', req.body);
   const { userId, cartId } = req.body;
@@ -41,7 +41,7 @@ router.post('/create-checkout-session', async (req, res) => {
   }
 });
 
-// Webhook de Stripe para confirmar pagos
+// Stripe webhook to confirm payments
 router.post(
   '/webhook',
   express.raw({ type: 'application/json' }),

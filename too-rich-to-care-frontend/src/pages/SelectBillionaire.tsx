@@ -27,31 +27,31 @@ const billionaires: Billionaire[] = [
 ];
 
 export default function SelectBillionaire() {
-  const { setBillionaire, userId } = useGame(); // ✅ usamos userId
+  const { setBillionaire, userId } = useGame(); // ✅ using userId
   const navigate = useNavigate();
 
   const handleSelect = async (b: Billionaire) => {
-    console.log("📌 Millonario seleccionado:", b);
+    console.log("📌 Selected billionaire:", b);
     setBillionaire(b);
 
-    // ✅ Enviar la elección al backend
+    // ✅ Send selection to backend
     try {
       const res = await fetch(`${import.meta.env.VITE_API_URL}/choices`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           billionaire: b.name,
-          userId: userId, // ✅ enviado como userId
+          userId: userId, // ✅ sent as userId
         }),
       });
 
       if (!res.ok) {
-        console.error('❌ Error al guardar la elección:', await res.text());
+        console.error('❌ Error saving selection:', await res.text());
       } else {
-        console.log('✅ Elección enviada correctamente');
+        console.log('✅ Selection sent successfully');
       }
     } catch (err) {
-      console.error('❌ Error en fetch /choices:', err);
+      console.error('❌ Error in fetch /choices:', err);
     }
 
     navigate('/spend');
